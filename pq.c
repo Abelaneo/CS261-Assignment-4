@@ -12,25 +12,33 @@
 
 #include "pq.h"
 #include "dynarray.h"
+#include <math.h>
 
 /*
  * This is the structure that represents a priority queue.  You must define
  * this struct to contain the data needed to implement a priority queue.
+ * 
+ * A dynamic array that will store priority_nodes, a struct that itself stores 
+ * data as a void* then a priority 
  */
-struct pq;
+struct pq {
+	struct dynarray* array;
+};
 
+struct priority_node {
+	int priority;
+	void* value;
+};
 
 /*
  * This function should allocate and initialize an empty priority queue and
  * return a pointer to it.
  */
 struct pq* pq_create() {
-	/*
-	 * FIXME: 
-	 */
-	return NULL;
+	struct pq* PQ = malloc(sizeof(struct pq));
+	PQ->array = dynarray_create();
+	return PQ;
 }
-
 
 /*
  * This function should free the memory allocated to a given priority queue.
@@ -41,12 +49,10 @@ struct pq* pq_create() {
  *   pq - the priority queue to be destroyed.  May not be NULL.
  */
 void pq_free(struct pq* pq) {
-	/*
-	 * FIXME: 
-	 */
+	dynarray_free(pq->array);
+	free(pq);
 	return;
 }
-
 
 /*
  * This function should return 1 if the specified priority queue is empty and
@@ -60,12 +66,11 @@ void pq_free(struct pq* pq) {
  *   Should return 1 if pq is empty and 0 otherwise.
  */
 int pq_isempty(struct pq* pq) {
-	/*
-	 * FIXME: 
-	 */
-	return 1;
+	if (dynarray_size(pq->array) == 0) {
+		return 1;
+	}
+	return 0
 }
-
 
 /*
  * This function should insert a given element into a priority queue with a
@@ -85,12 +90,29 @@ int pq_isempty(struct pq* pq) {
  *     be the FIRST one returned.
  */
 void pq_insert(struct pq* pq, void* value, int priority) {
-	/*
-	 * FIXME: 
-	 */
+	struct priority_node* new_node = malloc(sizeof(struct priority_node));
+	new_node->priority = priority;
+	new_node->value = value;
+
+	dynarray_insert(pq->array, new_node);
+	int new_pos = dynarray_size(pq->array) - 1;
+	
+	if (new_pos == 0) {
+		return;
+	}
+
+	int parent_pos = floor((new_pos - 1) / 2);
+	// While the new nodes priority is less than it's parents priority,
+	// and the node is not the root, swap them
+	while (pq->array->data[new_pos]->priority < pq->array->data[parent_pos]->priority &&
+	       new_pos != 0) {
+		
+		dynarray_switch(pq->array, new_pos, parent_pos));
+		new_pos = floor((new_pos - 1) / 2);
+		parent_pos = floor((new_pos - 1) / 2);
+	}
 	return;
 }
-
 
 /*
  * This function should return the value of the first item in a priority
@@ -105,10 +127,7 @@ void pq_insert(struct pq* pq, void* value, int priority) {
  *   LOWEST priority value.
  */
 void* pq_first(struct pq* pq) {
-	/*
-	 * FIXME: 
-	 */
-	return NULL;
+	return pq->array->data[0]->value;
 }
 
 
@@ -125,10 +144,7 @@ void* pq_first(struct pq* pq) {
  *   with LOWEST priority value.
  */
 int pq_first_priority(struct pq* pq) {
-	/*
-	 * FIXME: 
-	 */
-	return 0;
+	return pq->array->data[0]->priority;
 }
 
 
@@ -146,8 +162,7 @@ int pq_first_priority(struct pq* pq) {
  *   LOWEST priority value.
  */
 void* pq_remove_first(struct pq* pq) {
-	/*
-	 * FIXME: 
-	 */
-	return NULL;
+	void* temp = pq_first(pq);
+	dynarray_remove(pq->array, 0);
+	return temp;
 }
