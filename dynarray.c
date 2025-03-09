@@ -38,6 +38,20 @@ struct dynarray* dynarray_create() {
   return da;
 }
 
+/* 
+ * This function switches the place of 2 elements in a dynarray
+ * 
+ * Params:
+ *   da - the dynamic array in question
+ *   idx1 - the index of one of the elements to be switched
+ *   idx2 - the index of the second element to be switched
+ */
+void dynarray_switch(struct dynarray* da, int idx1, int idx2) {
+  void* temp = da->data[idx1];
+  da->data[idx1] = da->data[idx2];
+  da->data[idx2] = temp;
+}
+
 /*
  * This function frees the memory associated with a dynamic array.  Freeing
  * any memory associated with values stored in the array is the responsibility
