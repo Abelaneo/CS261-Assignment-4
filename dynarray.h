@@ -18,7 +18,9 @@ struct dynarray;
  * Dynamic array interface function prototypes.  Refer to dynarray.c for
  * documentation about each of these functions.
  */
+
 struct dynarray* dynarray_create();
+void dynarray_switch(struct dynarray* da, int index1, int index2);
 void dynarray_free(struct dynarray* da);
 int dynarray_size(struct dynarray* da);
 void dynarray_insert(struct dynarray* da, void* val);
