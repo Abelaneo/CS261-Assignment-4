@@ -157,14 +157,17 @@ void* pq_remove_first(struct pq* pq) {
 	int right_child = 2;
 
 	if (n == 1) {
+		free(pq->array->data[0]);
 		dynarray_remove(pq->array, 0);
 		return temp;
 	} else if (n == 2) {
+		free(pq->array->data[0]);
 		dynarray_remove(pq->array, 0);
 		return temp;
 	}
 
 	dynarray_switch(pq->array, 0, n - 1);
+	free(pq->array->data[n - 1]);
 	dynarray_remove(pq->array, n - 1);
 
 	if (n == 3) {
