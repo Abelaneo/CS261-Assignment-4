@@ -8,16 +8,27 @@
 
 #ifndef __PQ_H
 #define __PQ_H
+#include <math.h>
+#include "dynarray.h"
 
 /*
  * Structure used to represent a priority queue.
  */
-struct pq;
+struct pq {
+	struct dynarray* array;
+};
+
+struct priority_node {
+	int priority;
+	void* value;
+};
+
 
 /*
  * Priority queue interface function prototypes.  Refer to pq.c for
  * documentation about each of these functions.
  */
+int working_floor(float n);
 struct pq* pq_create();
 void pq_free(struct pq* pq);
 int pq_isempty(struct pq* pq);

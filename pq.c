@@ -9,10 +9,9 @@
  */
 
 #include <stdlib.h>
-
 #include "pq.h"
 #include "dynarray.h"
-#include <math.h>
+
 
 /*
  * This is the structure that represents a priority queue.  You must define
@@ -21,14 +20,7 @@
  * A dynamic array that will store priority_nodes, a struct that itself stores 
  * data as a void* then a priority 
  */
-struct pq {
-	struct dynarray* array;
-};
 
-struct priority_node {
-	int priority;
-	void* value;
-};
 
 /*
  * This function should allocate and initialize an empty priority queue and
@@ -69,7 +61,7 @@ int pq_isempty(struct pq* pq) {
 	if (dynarray_size(pq->array) == 0) {
 		return 1;
 	}
-	return 0
+	return 0;
 }
 
 /*
@@ -96,20 +88,16 @@ void pq_insert(struct pq* pq, void* value, int priority) {
 
 	dynarray_insert(pq->array, new_node);
 	int new_pos = dynarray_size(pq->array) - 1;
-	
-	if (new_pos == 0) {
-		return;
-	}
-
-	int parent_pos = floor((new_pos - 1) / 2);
+	int parent_pos = (new_pos - 1) / 2;
 	// While the new nodes priority is less than it's parents priority,
 	// and the node is not the root, swap them
-	while (pq->array->data[new_pos]->priority < pq->array->data[parent_pos]->priority &&
-	       new_pos != 0) {
+	while (new_pos > 0 &&
+	       ((struct priority_node*)pq->array->data[new_pos])->priority < 
+	       ((struct priority_node*)pq->array->data[parent_pos])->priority) {
 		
-		dynarray_switch(pq->array, new_pos, parent_pos));
-		new_pos = floor((new_pos - 1) / 2);
-		parent_pos = floor((new_pos - 1) / 2);
+		dynarray_switch(pq->array, new_pos, parent_pos);
+		new_pos = parent_pos;
+		parent_pos = (new_pos - 1) / 2;
 	}
 	return;
 }
@@ -127,7 +115,7 @@ void pq_insert(struct pq* pq, void* value, int priority) {
  *   LOWEST priority value.
  */
 void* pq_first(struct pq* pq) {
-	return pq->array->data[0]->value;
+	return ((struct priority_node*)pq->array->data[0])->value;
 }
 
 
@@ -144,7 +132,7 @@ void* pq_first(struct pq* pq) {
  *   with LOWEST priority value.
  */
 int pq_first_priority(struct pq* pq) {
-	return pq->array->data[0]->priority;
+	return ((struct priority_node*)pq->array->data[0])->priority;
 }
 
 
@@ -163,6 +151,51 @@ int pq_first_priority(struct pq* pq) {
  */
 void* pq_remove_first(struct pq* pq) {
 	void* temp = pq_first(pq);
-	dynarray_remove(pq->array, 0);
+	int n = dynarray_size(pq->array);
+	int percol = 0;
+	int left_child = 1;
+	int right_child = 2;
+
+	if (n == 1) {
+		dynarray_remove(pq->array, 0);
+		return temp;
+	} else if (n == 2) {
+		dynarray_remove(pq->array, 0);
+		return temp;
+	}
+
+	dynarray_switch(pq->array, 0, n - 1);
+	dynarray_remove(pq->array, n - 1);
+
+	if (n == 3) {
+		if (((struct priority_node*)pq->array->data[0])->priority >
+		    ((struct priority_node*)pq->array->data[1])->priority) {
+			dynarray_switch(pq->array, 0, 1);
+		}
+		return temp;
+	}
+
+
+	while (((struct priority_node*)pq->array->data[percol])->priority 
+		> ((struct priority_node*)pq->array->data[left_child])->priority || 
+	       ((struct priority_node*)pq->array->data[percol])->priority 
+	        > ((struct priority_node*)pq->array->data[right_child])->priority
+		) {
+
+		if (((struct priority_node*)pq->array->data[left_child])->priority 
+		< ((struct priority_node*)pq->array->data[right_child])->priority) {
+			dynarray_switch(pq->array, percol, left_child);
+			percol = left_child;
+		} else {
+			dynarray_switch(pq->array, percol, right_child);
+			percol = right_child;
+		}
+		left_child = 2 * percol + 1;
+		right_child = 2 * percol + 2;
+
+		if ((n - 2) <= left_child) {
+			return temp;
+		}
+	}
 	return temp;
 }
